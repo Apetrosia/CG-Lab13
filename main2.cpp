@@ -94,6 +94,30 @@ void processInput(sf::Window& window)
         camera.ProcessKeyboard(ROTATE_LEFT, deltaTime);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         camera.ProcessKeyboard(ROTATE_RIGHT, deltaTime);
+
+
+    static bool firstMouse = true;  
+    static float lastX = window.getSize().x / 2.0f;  // Центр окна по X
+    static float lastY = window.getSize().y / 2.0f;  // Центр окна по Y
+
+    sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+    float xpos = static_cast<float>(mousePosition.x);
+    float ypos = static_cast<float>(mousePosition.y);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;  // Инвертируем для работы с координатами камеры
+    lastX = xpos;
+    lastY = ypos;
+
+    // Обрабатываем движение мыши через камеру
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 int main()
