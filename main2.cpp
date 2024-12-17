@@ -113,12 +113,15 @@ int main()
 
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
-    unsigned int amount = 100;
+    unsigned int amount = 1000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand(static_cast<unsigned int>(time(NULL))); // initialize random seed
     float radius = 150.0;
     float offset = 25.0f;
+
+    std::vector<glm::vec3> initialPositions(amount);
+
     for (unsigned int i = 0; i < amount; i++)
     {
         glm::mat4 model = glm::mat4(1.0f);
@@ -139,7 +142,7 @@ int main()
         // 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
         float rotAngle = static_cast<float>((rand() % 360));
         model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
-
+        initialPositions[i] = glm::vec3(x, y, z);
         // 4. now add to list of matrices
         modelMatrices[i] = model;
     }
@@ -149,7 +152,7 @@ int main()
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STREAM_DRAW);
 
     // set transformation matrices as an instance vertex attribute (with divisor 1)
     // note: we're cheating a little by taking the, now publicly declared, VAO of the model's mesh(es) and adding new vertexAttribPointers
@@ -181,20 +184,87 @@ int main()
 
     sf::Clock clock;
 
+
+    std::vector<glm::vec3> rotationAxes(amount);
+    std::vector<float> rotationSpeeds(amount);
+    for (unsigned int i = 0; i < amount; i++) {
+        // Случайная ось вращения
+        rotationAxes[i] = glm::normalize(glm::vec3(
+            static_cast<float>(rand() % 100) / 100.0f,
+            static_cast<float>(rand() % 100) / 100.0f,
+            static_cast<float>(rand() % 100) / 100.0f
+        ));
+
+        // Случайная скорость вращения (градусы в секунду)
+        rotationSpeeds[i] = static_cast<float>(rand() % 100) / 10.0f; // от 0 до 10
+    }
+    std::vector<float> orbitAngles(amount, 0.0f);
+    std::vector<float> selfRotationAngles(amount, 0.0f);
+
     // Основной цикл
     while (window.isOpen()) {
         
         // Управление временными логиками
-        float currentFrame = clock.restart().asSeconds();
-        deltaTime = currentFrame - lastFrame;
+        float currentFrame = clock.getElapsedTime().asSeconds();
+        deltaTime = (currentFrame - lastFrame)*10;
         lastFrame = currentFrame;
 
         // Обработка ввода
         processInput(window);
 
+        // Обновление вращения метеоритов
+        /*for (unsigned int i = 0; i < amount; i++) {
+            float angle = rotationSpeeds[i] * deltaTime;
+            modelMatrices[i] = glm::rotate(modelMatrices[i], glm::radians(angle), rotationAxes[i]);
+        }*/
+       
+        const float orbitSpeed = 10.0f; // Скорость вращения орбиты в градусах в секунду
+        for (unsigned int i = 0; i < amount; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+
+            // Увеличиваем угол орбиты на основе времени
+            orbitAngles[i] += orbitSpeed * 0.005f; // `orbitSpeed` в градусах в секунду
+            if (orbitAngles[i] > 360.0f) {
+                orbitAngles[i] -= 360.0f; // Сбрасываем угол, чтобы избежать переполнения
+            }
+
+            // Конвертируем угол орбиты в радианы
+            float orbitAngleRad = glm::radians(orbitAngles[i]);
+
+            // Вращаем метеорит вокруг планеты
+            glm::vec3 position = initialPositions[i]; // Начальная позиция
+            glm::mat4 orbitRotation = glm::rotate(glm::mat4(1.0f), orbitAngleRad, glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::vec4 newPosition = orbitRotation * glm::vec4(position, 1.0f);
+
+            // Обновляем позицию модели
+            model = glm::translate(model, glm::vec3(newPosition));
+
+            // Увеличиваем угол собственного вращения
+            selfRotationAngles[i] += rotationSpeeds[i] * 0.005f; // `rotationSpeeds[i]` в градусах в секунду
+            if (selfRotationAngles[i] > 360.0f) {
+                selfRotationAngles[i] -= 360.0f; // Сбрасываем угол, чтобы избежать переполнения
+            }
+
+            // Конвертируем угол собственного вращения в радианы
+            float selfRotationAngleRad = glm::radians(selfRotationAngles[i]);
+
+            // Собственное вращение метеорита
+            model = glm::rotate(model, selfRotationAngleRad, rotationAxes[i]);
+
+            // Сохраняем итоговую матрицу трансформации
+            modelMatrices[i] = model;
+        }
+
+
+        // Обновляем буфер
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &modelMatrices[0]);
+
         // Очистка экрана
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
 
         // Настройка матриц трансформации
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 1000.0f);
@@ -214,7 +284,7 @@ int main()
         planet.Draw(planetShader);
 
         // Рисуем метеориты
-        asteroidShader.use();
+        /*asteroidShader.use();
         asteroidShader.setInt("texture_diffuse1", 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id);
@@ -222,8 +292,15 @@ int main()
             glBindVertexArray(rock.meshes[i].VAO);
             glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(rock.meshes[i].indices.size()), GL_UNSIGNED_INT, 0, amount);
             glBindVertexArray(0);
+        }*/
+        
+        for (unsigned int i = 0; i < amount; i++)
+        {
+            asteroidShader.setMat4("model", modelMatrices[i]);
+           
+            rock.Draw(asteroidShader);
         }
-
+        
         // ОбменBuffers
         window.display();
 
