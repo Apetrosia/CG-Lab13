@@ -135,14 +135,14 @@ int main()
 
     // load models
     // -----------
-    Model rock("resources/rock/rock.obj");
-    Model planet("resources/planet/planet.obj");
+    Model planet("resources/planet/Krosh.obj");
+    Model rock("resources/rock/model.obj");
 
     
 
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
-    unsigned int amount = 10000;
+    unsigned int amount = 1000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand(static_cast<unsigned int>(time(NULL))); // initialize random seed
