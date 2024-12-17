@@ -96,9 +96,6 @@ void processInput(sf::Window& window)
         camera.ProcessKeyboard(ROTATE_RIGHT, deltaTime);
 
 
-    static bool firstMouse = true;  
-    static float lastX = window.getSize().x / 2.0f;  // Центр окна по X
-    static float lastY = window.getSize().y / 2.0f;  // Центр окна по Y
 
     sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
     float xpos = static_cast<float>(mousePosition.x);
