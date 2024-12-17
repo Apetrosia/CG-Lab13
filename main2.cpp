@@ -121,7 +121,7 @@ int main()
 
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
-    unsigned int amount = 1000;
+    unsigned int amount = 10000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand(static_cast<unsigned int>(time(NULL))); // initialize random seed
@@ -284,7 +284,7 @@ int main()
         planet.Draw(planetShader);
 
         // Рисуем метеориты
-        /*asteroidShader.use();
+        asteroidShader.use();
         asteroidShader.setInt("texture_diffuse1", 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id);
@@ -292,14 +292,14 @@ int main()
             glBindVertexArray(rock.meshes[i].VAO);
             glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(rock.meshes[i].indices.size()), GL_UNSIGNED_INT, 0, amount);
             glBindVertexArray(0);
-        }*/
+        }
         
-        for (unsigned int i = 0; i < amount; i++)
+        /*for (unsigned int i = 0; i < amount; i++)
         {
             asteroidShader.setMat4("model", modelMatrices[i]);
            
             rock.Draw(asteroidShader);
-        }
+        }*/
         
         // ОбменBuffers
         window.display();
