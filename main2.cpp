@@ -204,7 +204,6 @@ int main()
     // Основной цикл
     while (window.isOpen())
     {
-        
         // Управление временными логиками
         float currentFrame = clock.getElapsedTime().asSeconds();
         deltaTime = (currentFrame - lastFrame)*10;
@@ -213,14 +212,14 @@ int main()
         // Обработка ввода
         processInput(window);
 
-        const float orbitSpeed = 10.0f; // Скорость вращения орбиты в градусах в секунду
+        const float orbitSpeed = 0.1f; // Скорость вращения орбиты
         for (unsigned int i = 0; i < amount; i++)
         {
             // 1. Создаём начальную единичную матрицу
             glm::mat4 model = glm::mat4(1.0f);
 
             // 2. Вращение метеорита вокруг орбиты (вокруг "солнца")
-            orbitAngles[i] += orbitSpeed * 0.005f; // `orbitSpeed` в градусах в секунду
+            orbitAngles[i] += orbitSpeed * deltaTime; // `orbitSpeed` в градусах в секунду
             if (orbitAngles[i] > 360.0f)
                 orbitAngles[i] -= 360.0f; // Сбрасываем угол
             float orbitAngleRad = glm::radians(orbitAngles[i]);
