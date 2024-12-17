@@ -202,7 +202,8 @@ int main()
     std::vector<float> selfRotationAngles(amount, 0.0f);
 
     // Основной цикл
-    while (window.isOpen()) {
+    while (window.isOpen())
+    {
         
         // Управление временными логиками
         float currentFrame = clock.getElapsedTime().asSeconds();
@@ -212,48 +213,40 @@ int main()
         // Обработка ввода
         processInput(window);
 
-        // Обновление вращения метеоритов
-        /*for (unsigned int i = 0; i < amount; i++) {
-            float angle = rotationSpeeds[i] * deltaTime;
-            modelMatrices[i] = glm::rotate(modelMatrices[i], glm::radians(angle), rotationAxes[i]);
-        }*/
-       
         const float orbitSpeed = 10.0f; // Скорость вращения орбиты в градусах в секунду
-        for (unsigned int i = 0; i < amount; i++) {
+        for (unsigned int i = 0; i < amount; i++)
+        {
+            // 1. Создаём начальную единичную матрицу
             glm::mat4 model = glm::mat4(1.0f);
 
-            // Увеличиваем угол орбиты на основе времени
+            // 2. Вращение метеорита вокруг орбиты (вокруг "солнца")
             orbitAngles[i] += orbitSpeed * 0.005f; // `orbitSpeed` в градусах в секунду
-            if (orbitAngles[i] > 360.0f) {
-                orbitAngles[i] -= 360.0f; // Сбрасываем угол, чтобы избежать переполнения
-            }
-
-            // Конвертируем угол орбиты в радианы
+            if (orbitAngles[i] > 360.0f)
+                orbitAngles[i] -= 360.0f; // Сбрасываем угол
             float orbitAngleRad = glm::radians(orbitAngles[i]);
 
-            // Вращаем метеорит вокруг планеты
-            glm::vec3 position = initialPositions[i]; // Начальная позиция
+            // Рассчитываем новую позицию объекта на орбите
             glm::mat4 orbitRotation = glm::rotate(glm::mat4(1.0f), orbitAngleRad, glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::vec3 position = initialPositions[i]; // Начальная позиция
             glm::vec4 newPosition = orbitRotation * glm::vec4(position, 1.0f);
 
-            // Обновляем позицию модели
+            // Перемещение объекта на новую орбитальную позицию
             model = glm::translate(model, glm::vec3(newPosition));
 
-            // Увеличиваем угол собственного вращения
-            selfRotationAngles[i] += rotationSpeeds[i] * 0.005f; // `rotationSpeeds[i]` в градусах в секунду
+            // 3. Вращение объекта вокруг своей оси
+            selfRotationAngles[i] += rotationSpeeds[i] * deltaTime; // `rotationSpeeds[i]` в градусах в секунду
             if (selfRotationAngles[i] > 360.0f) {
-                selfRotationAngles[i] -= 360.0f; // Сбрасываем угол, чтобы избежать переполнения
+                selfRotationAngles[i] -= 360.0f; // Сбрасываем угол
             }
-
-            // Конвертируем угол собственного вращения в радианы
             float selfRotationAngleRad = glm::radians(selfRotationAngles[i]);
 
-            // Собственное вращение метеорита
+            // Добавляем вращение вокруг собственной оси
             model = glm::rotate(model, selfRotationAngleRad, rotationAxes[i]);
 
-            // Сохраняем итоговую матрицу трансформации
+            // 4. Сохраняем итоговую матрицу трансформации
             modelMatrices[i] = model;
         }
+
 
 
         // Обновляем буфер
