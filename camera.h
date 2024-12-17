@@ -12,7 +12,11 @@ enum Camera_Movement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN,
+    ROTATE_LEFT,
+    ROTATE_RIGHT
 };
 
 // Default camera values
@@ -78,6 +82,17 @@ public:
             Position -= Right * velocity;
         if (direction == RIGHT)
             Position += Right * velocity;
+        if (direction == UP)
+            Position += Up * velocity; 
+        if (direction == DOWN)
+            Position -= Up * velocity; 
+
+        float rotationSpeed = 20.0f;
+        if (direction == ROTATE_LEFT)
+            Yaw -= rotationSpeed * deltaTime;
+        if (direction == ROTATE_RIGHT)
+            Yaw += rotationSpeed * deltaTime;
+        updateCameraVectors();
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

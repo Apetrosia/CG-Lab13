@@ -86,6 +86,14 @@ void processInput(sf::Window& window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        camera.ProcessKeyboard(UP, deltaTime);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        camera.ProcessKeyboard(DOWN, deltaTime);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        camera.ProcessKeyboard(ROTATE_LEFT, deltaTime);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        camera.ProcessKeyboard(ROTATE_RIGHT, deltaTime);
 }
 
 int main()
