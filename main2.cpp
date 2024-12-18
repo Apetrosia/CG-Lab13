@@ -146,7 +146,7 @@ int main()
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand(static_cast<unsigned int>(time(NULL))); // initialize random seed
-    float radius = 150.0;
+    float radius = 75.0;
     float offset = 25.0f;
 
     std::vector<glm::vec3> initialPositions(amount);
@@ -270,7 +270,7 @@ int main()
 
             // Добавляем вращение вокруг собственной оси
             model = glm::rotate(model, selfRotationAngleRad, rotationAxes[i]);
-
+            model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
             // 4. Сохраняем итоговую матрицу трансформации
             modelMatrices[i] = model;
         }
@@ -300,7 +300,9 @@ int main()
         // Рисуем планету
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+        model = glm::scale(model, glm::vec3(100.0f, 100.0f,100.0f));
+        //float selfRotationAngleRad = glm::radians(selfRotationAngles[0]);
+        //model = glm::rotate(model, selfRotationAngleRad, glm::vec3(0.0f, 1.0f, 0.0f));
         planetShader.setMat4("model", model);
         planet.Draw(planetShader);
 
