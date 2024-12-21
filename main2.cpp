@@ -138,8 +138,6 @@ int main()
     Model planet("resources/planet/Krosh.obj");
     Model rock("resources/rock/model.obj");
 
-    
-
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
     unsigned int amount = 1000;
